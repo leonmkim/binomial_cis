@@ -13,12 +13,12 @@ def binom_coeff(n, k):
     """
     # Use the multiplicative formula for computational efficiency:
     # https://en.wikipedia.org/wiki/Binomial_coefficient#Multiplicative_formula
+    # Leon: suffers from overflow for large n, k
     c = 1
     upper_lim = int(min(k, n-k))
     for i in range(1, upper_lim + 1):
         c *= (n + 1 - i) / i
     return c
-
 
 @cfunc("float64(float64, float64, float64)")
 def binom_pmf(k, n, p):
@@ -31,10 +31,27 @@ def binom_pmf(k, n, p):
     Returns
     pmf: binomial pmf evaluated at k, n, p
     """
-    pmf = binom_coeff(n, k) * p**k * (1-p)**(n-k)
-    
-    # safeguard against floating point errors
-    pmf = min(1, max(0, pmf)) # unable to use np.clip()
+    # pmf = binom_coeff(n, k) * p**k * (1-p)**(n-k)
+    # Leon: replace with log space to avoid under/overflow
+    if p == 1:
+        if k == n:
+            pmf = 1
+        else:
+            pmf = 0
+    elif p == 0:
+        if k == 0:
+            pmf = 1
+        else:
+            pmf = 0
+    else:
+        # following code from https://stackoverflow.com/a/45869209
+        log_binom_coeff = 0
+        for i in range(1, int(k) + 1): # should loop from i = 1, ..., k
+            log_binom_coeff += np.log(n - i + 1 ) - np.log(i)
+        log_pmf = log_binom_coeff + k * np.log(p) + (n-k) * np.log1p(-p)
+        pmf = np.exp(log_pmf)
+        # safeguard against floating point errors
+        pmf = min(1, max(0, pmf)) # unable to use np.clip()
     return pmf
 
 

@@ -40,6 +40,8 @@ def CDF(t, p, n):
         cdf = (t - t_) * binom_pmf(t_, n, p)
     else:
         cdf = binom_cdf(t_ - 1, n, p) + (t - t_) * binom_pmf(t_, n, p)
+    # Leon: add test to ensure cdf is between 0 and 1
+    assert cdf >= 0 and cdf <= 1, f"t: {t}, p: {p}, n: {n}, cdf: {cdf}"
     return cdf
 
 
@@ -194,6 +196,8 @@ def bisection(CDF, alpha, tol=1e-6):
     # see https://en.wikipedia.org/wiki/Bisection_method#Analysis
     # add buffer because floating point arithmetic sometimes requiring more iters
     n = int(np.ceil( np.log2(1 / tol) )) + 10
+    # buffer of 10 doesnt seem to cut it for larger alpha and large num samples
+    # n = int(np.ceil( np.log2(1 / tol) )) + 10000
 
     lb = 0 + epsilon
     ub = 1 - epsilon
@@ -228,7 +232,7 @@ def bisection(CDF, alpha, tol=1e-6):
             p_ = ub
             return p_
 
-    raise ValueError("Exited bisection search with no solution. Error in code.")
+    raise ValueError(f"Exited bisection search with no solution after {n} iterations. Error in code.")
 
 
 
