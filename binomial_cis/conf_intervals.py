@@ -196,8 +196,6 @@ def bisection(CDF, alpha, tol=1e-6):
     # see https://en.wikipedia.org/wiki/Bisection_method#Analysis
     # add buffer because floating point arithmetic sometimes requiring more iters
     n = int(np.ceil( np.log2(1 / tol) )) + 10
-    # buffer of 10 doesnt seem to cut it for larger alpha and large num samples
-    # n = int(np.ceil( np.log2(1 / tol) )) + 10000
 
     lb = 0 + epsilon
     ub = 1 - epsilon
