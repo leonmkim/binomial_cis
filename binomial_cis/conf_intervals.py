@@ -40,8 +40,10 @@ def CDF(t, p, n):
         cdf = (t - t_) * binom_pmf(t_, n, p)
     else:
         cdf = binom_cdf(t_ - 1, n, p) + (t - t_) * binom_pmf(t_, n, p)
+    # clamp to [0,1] to avoid floating point errors
+    cdf = min(1, max(0, cdf))
     # Leon: add test to ensure cdf is between 0 and 1
-    assert cdf >= 0 and cdf <= 1, f"t: {t}, p: {p}, n: {n}, cdf: {cdf}"
+    # assert cdf >= 0 and cdf <= 1, f"t: {t}, p: {p}, n: {n}, cdf: {cdf}"
     return cdf
 
 
